@@ -1,3 +1,2739 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9202bbe4337a2dd87b494f76c3446e97b7918876799a111953f9ac5102273d02
-size 91385
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0612">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="خواب آرام - فضای آرام برای خواب بهتر">
+<title>mysleep</title>
+<style>
+/* ==================================================
+   RESET
+================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100%;
+  min-height: 100dvh;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select {
+  font-family: inherit;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+ul, ol { list-style: none; }
+img, svg { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+
+/* ==================================================
+   VARIABLES
+================================================== */
+:root {
+  --bg-primary: #0a0612;
+  --bg-secondary: #120b1f;
+  --bg-card: rgba(28, 18, 42, 0.55);
+  --bg-card-hover: rgba(38, 24, 58, 0.7);
+  --pink: #e8a0bf;
+  --pink-soft: #f2c4d8;
+  --pink-glow: rgba(232, 160, 191, 0.25);
+  --purple: #2a1a3d;
+  --purple-deep: #1a0f28;
+  --purple-mid: #3d2a55;
+  --text-primary: #f5eef5;
+  --text-secondary: #b8a8c4;
+  --text-muted: #8a7a96;
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --border: rgba(232, 160, 191, 0.15);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --radius: 20px;
+  --radius-sm: 14px;
+  --radius-xs: 10px;
+  --nav-height: 68px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.18s ease;
+}
+
+/* ==================================================
+   BASE
+================================================== */
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.hidden { display: none !important; }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+/* ==================================================
+   BACKGROUND (CSS only - calm particles + moon)
+================================================== */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 30% 20%, #1a0f2e 0%, var(--bg-primary) 55%, #05030a 100%);
+}
+
+.moon {
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f5e6c8 0%, #e8d4a8 40%, #c9b48a 70%, #a89070 100%);
+  box-shadow:
+    0 0 40px rgba(245, 230, 200, 0.25),
+    0 0 80px rgba(232, 160, 191, 0.12),
+    inset -12px -8px 20px rgba(0,0,0,0.15);
+  animation: moonFloat 18s ease-in-out infinite;
+}
+
+.moon::after {
+  content: "";
+  position: absolute;
+  top: 18%;
+  left: 22%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(180, 160, 130, 0.25);
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255,255,255,0.03);
+  border-radius: 100px;
+  filter: blur(1px);
+  animation: cloudDrift 40s linear infinite;
+}
+
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--pink);
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: particleFloat 12s ease-in-out infinite;
+}
+
+@keyframes moonFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.02); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+@keyframes cloudDrift {
+  0% { transform: translateX(-20%); }
+  100% { transform: translateX(120%); }
+}
+@keyframes particleFloat {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.1; }
+  50% { transform: translateY(-30px) translateX(10px); opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moon, .star, .cloud, .particle, .glow-orb {
+    animation: none !important;
+  }
+}
+
+/* ==================================================
+   LOADING
+================================================== */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+.loading-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+.loading-moon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f5e6c8, #c9b48a);
+  box-shadow: 0 0 30px rgba(245,230,200,0.3);
+  margin-bottom: 28px;
+  animation: moonFloat 3s ease-in-out infinite;
+}
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+/* ==================================================
+   HEADER
+================================================== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(12px + var(--safe-top)) 18px 12px;
+  background: linear-gradient(to bottom, rgba(10,6,18,0.92), rgba(10,6,18,0.7), transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--text-primary), var(--pink-soft));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
+}
+.header-btn:active {
+  transform: scale(0.92);
+  background: var(--bg-card-hover);
+}
+.header-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-secondary);
+}
+
+/* ==================================================
+   MAIN CONTENT
+================================================== */
+.main-content {
+  flex: 1;
+  padding: 8px 16px calc(var(--nav-height) + 90px + var(--safe-bottom));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.page {
+  display: none;
+  animation: pageIn 0.35s ease;
+}
+.page.active {
+  display: block;
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+.section-sub {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+/* ==================================================
+   HOME
+================================================== */
+.greeting {
+  margin-bottom: 28px;
+  padding-top: 8px;
+}
+.greeting h1 {
+  font-size: 1.55rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.greeting p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.main-card {
+  position: relative;
+  padding: 22px 16px;
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  overflow: hidden;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.main-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(232,160,191,0.08), transparent 60%);
+  pointer-events: none;
+}
+.main-card:active {
+  transform: scale(0.97);
+  border-color: rgba(232,160,191,0.3);
+  box-shadow: 0 4px 24px rgba(232,160,191,0.12);
+}
+.main-card .card-icon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  opacity: 0.7;
+}
+.main-card .card-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: var(--pink-soft);
+  fill: none;
+  stroke-width: 1.5;
+}
+.main-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  position: relative;
+}
+.main-card p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  position: relative;
+}
+
+/* ==================================================
+   SOUND LISTS
+================================================== */
+.sound-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sound-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
+}
+.sound-item:active {
+  transform: scale(0.985);
+  background: var(--bg-card-hover);
+}
+.sound-item.playing {
+  border-color: rgba(232,160,191,0.35);
+  background: rgba(232,160,191,0.08);
+}
+.sound-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple-mid), var(--purple-deep));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.sound-thumb svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--pink-soft);
+  fill: none;
+  stroke-width: 1.5;
+  opacity: 0.85;
+}
+.sound-info {
+  flex: 1;
+  min-width: 0;
+}
+.sound-info h4 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sound-info span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.sound-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
+}
+.icon-btn:active {
+  transform: scale(0.9);
+}
+.icon-btn.play-btn {
+  background: rgba(232,160,191,0.15);
+  border-color: rgba(232,160,191,0.3);
+}
+.icon-btn.play-btn.active {
+  background: var(--pink);
+  border-color: var(--pink);
+}
+.icon-btn.play-btn.active svg {
+  stroke: var(--bg-primary);
+}
+.icon-btn.fav-btn.active svg {
+  fill: var(--pink);
+  stroke: var(--pink);
+}
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-secondary);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==================================================
+   CATEGORY CHIPS
+================================================== */
+.category-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 14px;
+  margin-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.category-scroll::-webkit-scrollbar { display: none; }
+.cat-chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: var(--transition-fast);
+}
+.cat-chip.active {
+  background: rgba(232,160,191,0.18);
+  border-color: var(--pink);
+  color: var(--pink-soft);
+}
+
+/* ==================================================
+   MIX SECTION
+================================================== */
+.mix-panel {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+}
+.mix-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.mix-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.mix-slot:last-child { margin-bottom: 0; }
+.mix-slot-name {
+  flex: 0 0 90px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mix-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+}
+.mix-slider::-webkit-slider-thumb,
+#volumeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--pink);
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--pink-glow);
+}
+#volumeSlider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+}
+.mix-vol {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  width: 36px;
+  text-align: left;
+}
+
+/* ==================================================
+   MESSAGES
+================================================== */
+.message-card {
+  padding: 28px 22px;
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, rgba(42,26,61,0.7), rgba(20,12,32,0.8));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.message-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  text-align: center;
+}
+.message-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, rgba(232,160,191,0.3), rgba(232,160,191,0.15));
+  border: 1px solid rgba(232,160,191,0.4);
+  color: var(--pink-soft);
+}
+.btn-primary:active {
+  transform: scale(0.96);
+  background: rgba(232,160,191,0.35);
+}
+.btn-ghost {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+}
+.btn-ghost:active {
+  transform: scale(0.96);
+}
+
+/* ==================================================
+   MY SLEEP / ROUTINE
+================================================== */
+.info-card {
+  padding: 18px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  margin-bottom: 12px;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.info-row:last-child { border-bottom: none; }
+.info-label {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+.info-value {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.routine-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.routine-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-xs);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+}
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(232,160,191,0.15);
+  color: var(--pink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.step-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+/* ==================================================
+   FAVORITES EMPTY
+================================================== */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  opacity: 0.4;
+}
+.empty-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: var(--text-muted);
+  fill: none;
+  stroke-width: 1.2;
+}
+.empty-title {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.empty-sub {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ==================================================
+   SETTINGS
+================================================== */
+.settings-group {
+  margin-bottom: 24px;
+}
+.settings-group-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+  padding-right: 4px;
+}
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+.setting-label {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+.setting-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.1);
+  position: relative;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition: var(--transition-fast);
+}
+.toggle.on {
+  background: rgba(232,160,191,0.35);
+}
+.toggle.on::after {
+  right: 23px;
+  background: var(--pink);
+}
+.select-setting {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  min-width: 110px;
+  text-align: center;
+}
+
+/* ==================================================
+   BOTTOM NAV
+================================================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: calc(var(--nav-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(12, 8, 20, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--glass-border);
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+  padding-top: 8px;
+  transition: var(--transition-fast);
+  color: var(--text-muted);
+}
+.nav-item.active {
+  color: var(--pink-soft);
+}
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-item span {
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+/* ==================================================
+   MINI PLAYER
+================================================== */
+.mini-player {
+  position: fixed;
+  bottom: calc(var(--nav-height) + var(--safe-bottom));
+  left: 12px;
+  right: 12px;
+  z-index: 190;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(28, 18, 42, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+  transform: translateY(120%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.mini-player.show {
+  display: flex;
+  transform: translateY(0);
+}
+.mini-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--purple-mid), var(--purple-deep));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mini-thumb svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--pink-soft);
+  fill: none;
+  stroke-width: 1.5;
+}
+.mini-info {
+  flex: 1;
+  min-width: 0;
+}
+.mini-title {
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mini-progress {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.mini-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--pink), var(--pink-soft));
+  border-radius: 2px;
+  transition: width 0.3s linear;
+}
+.mini-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mini-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mini-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-primary);
+  fill: none;
+  stroke-width: 2;
+}
+
+/* ==================================================
+   FULL PLAYER (Bottom Sheet)
+================================================== */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0,0,0,0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.sheet-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 310;
+  max-height: 88dvh;
+  background: linear-gradient(180deg, #1a1228 0%, #0e0a16 100%);
+  border-radius: 24px 24px 0 0;
+  border: 1px solid var(--glass-border);
+  border-bottom: none;
+  transform: translateY(105%);
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--safe-bottom);
+}
+.bottom-sheet.show {
+  transform: translateY(0);
+}
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 12px auto 8px;
+  flex-shrink: 0;
+}
+.sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 20px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+.player-art {
+  width: 180px;
+  height: 180px;
+  margin: 12px auto 24px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, var(--purple-mid), var(--purple-deep));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 40px rgba(232,160,191,0.1);
+  position: relative;
+  overflow: hidden;
+}
+.player-art svg {
+  width: 64px;
+  height: 64px;
+  stroke: var(--pink-soft);
+  fill: none;
+  stroke-width: 1.2;
+  opacity: 0.8;
+}
+.player-art .visualizer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  height: 28px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.player-art.playing .visualizer {
+  opacity: 0.7;
+}
+.viz-bar {
+  width: 4px;
+  background: var(--pink-soft);
+  border-radius: 2px;
+  animation: vizPulse 1.2s ease-in-out infinite;
+}
+.viz-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+.viz-bar:nth-child(2) { height: 70%; animation-delay: 0.15s; }
+.viz-bar:nth-child(3) { height: 100%; animation-delay: 0.3s; }
+.viz-bar:nth-child(4) { height: 55%; animation-delay: 0.45s; }
+.viz-bar:nth-child(5) { height: 30%; animation-delay: 0.6s; }
+@keyframes vizPulse {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .viz-bar { animation: none; height: 50% !important; }
+}
+.player-title {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.player-cat {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+.player-progress-wrap {
+  margin-bottom: 8px;
+}
+.player-time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.progress-track {
+  height: 5px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--pink), var(--pink-soft));
+  border-radius: 3px;
+  position: relative;
+}
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pink-soft);
+  box-shadow: 0 0 8px var(--pink-glow);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.progress-track:active .progress-fill::after {
+  opacity: 1;
+}
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 24px 0;
+}
+.ctrl-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
+}
+.ctrl-btn:active { transform: scale(0.9); }
+.ctrl-btn.main {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, rgba(232,160,191,0.35), rgba(232,160,191,0.15));
+  border-color: rgba(232,160,191,0.45);
+}
+.ctrl-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--text-primary);
+  fill: none;
+  stroke-width: 1.8;
+}
+.ctrl-btn.main svg {
+  width: 28px;
+  height: 28px;
+}
+.player-extra {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.extra-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 8px;
+  transition: var(--transition-fast);
+}
+.extra-btn.active {
+  color: var(--pink-soft);
+}
+.extra-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+}
+.extra-btn.fav.active svg {
+  fill: var(--pink);
+  stroke: var(--pink);
+}
+
+/* ==================================================
+   TIMER SHEET
+================================================== */
+.timer-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.timer-opt {
+  padding: 16px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: var(--transition-fast);
+}
+.timer-opt.active {
+  background: rgba(232,160,191,0.15);
+  border-color: var(--pink);
+  color: var(--pink-soft);
+}
+.timer-opt:active {
+  transform: scale(0.96);
+}
+.fade-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+/* ==================================================
+   SLEEP MODE
+================================================== */
+.sleep-mode-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #05030a;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.sleep-mode-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+.sleep-mode-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, #120a1c 0%, #05030a 70%);
+  pointer-events: none;
+}
+.sleep-mode-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+}
+.sleep-sound-name {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  opacity: 0.85;
+}
+.sleep-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 40px;
+}
+.sleep-play {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(232,160,191,0.12);
+  border: 1px solid rgba(232,160,191,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sleep-play svg {
+  width: 32px;
+  height: 32px;
+  stroke: var(--pink-soft);
+  fill: none;
+  stroke-width: 1.6;
+}
+.sleep-timer-display {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+.sleep-exit {
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+/* ==================================================
+   TOAST
+================================================== */
+.toast {
+  position: fixed;
+  bottom: calc(var(--nav-height) + 80px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  z-index: 500;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: rgba(28, 18, 42, 0.95);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+  white-space: nowrap;
+  max-width: 90vw;
+  text-align: center;
+}
+.toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+@media (min-width: 480px) {
+  .main-content { padding-left: 24px; padding-right: 24px; }
+  .cards-grid { gap: 14px; }
+  .player-art { width: 200px; height: 200px; }
+}
+@media (min-width: 768px) {
+  .main-content {
+    max-width: 520px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .bottom-nav, .mini-player, .bottom-sheet {
+    max-width: 520px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .mini-player.show {
+    transform: translateX(-50%) translateY(0);
+  }
+  .bottom-sheet {
+    transform: translateX(-50%) translateY(105%);
+  }
+  .bottom-sheet.show {
+    transform: translateX(-50%) translateY(0);
+  }
+  .moon { width: 110px; height: 110px; }
+}
+
+/* ==================================================
+   ACCESSIBILITY
+================================================== */
+button:focus-visible,
+.cat-chip:focus-visible,
+.timer-opt:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Performance mode */
+.perf-mode .particle,
+.perf-mode .cloud,
+.perf-mode .star {
+  display: none !important;
+}
+.perf-mode .moon {
+  animation: none;
+}
+</style>
+</head>
+<body>
+<!-- Background -->
+<div class="bg-layer" id="bgLayer" aria-hidden="true">
+  <div class="moon"></div>
+  <div class="stars" id="stars"></div>
+</div>
+
+<!-- Loading -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-moon"></div>
+  <p class="loading-text">وایسا فضای خوابتو آماده بکنم...</p>
+</div>
+
+<!-- App -->
+<div class="app" id="app">
+  <!-- Header -->
+  <header class="app-header">
+    <h1 class="app-title">MySleep</h1>
+    <button class="header-btn" id="btnSettings" aria-label="تنظیمات">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <!-- Main -->
+  <main class="main-content" id="mainContent">
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home" data-page="home">
+      <div class="greeting">
+        <h1>به دنیای پرآرامش خودت خوش اومدی</h1>
+        <p>امشب چطور دوست داری بخوابی نفشم؟</p>
+      </div>
+
+      <div class="cards-grid">
+        <button class="main-card" data-nav="lullaby" aria-label="لالایی">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <h3>لالایی</h3>
+          <p>پر از لالایی های جذاب</p>
+        </button>
+        <button class="main-card" data-nav="asmr" aria-label="ASMR">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <h3>ASMR</h3>
+          <p>آرام سازی ذهن و افکار</p>
+        </button>
+        <button class="main-card" data-nav="ambient" aria-label="صداهای طبیعت">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <h3>صداهای طبیعت</h3>
+          <p>صداهای جذاب طبیعت</p>
+        </button>
+        <button class="main-card" data-nav="messages" aria-label="پیام های شب بخیر">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3>پیام های شب بخیر</h3>
+          <p>پیام های از طرف  شوهر روانیت</p>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- LULLABY PAGE -->
+    <div class="page" id="page-lullaby" data-page="lullaby">
+      <h2 class="section-title">لالایی ها</h2>
+      <p class="section-sub">یه صدای آروم برای شروع یه خواب خوب</p>
+      <div class="sound-list" id="lullabyList"></div>
+    </div>
+
+    <!-- ASMR PAGE -->
+    <div class="page" id="page-asmr" data-page="asmr">
+      <h2 class="section-title">ASMR</h2>
+      <p class="section-sub">یه صدای آروم انتخاب کن و بذار ذهنت کم کم ساکت بشه.</p>
+      <div class="sound-list" id="asmrList"></div>
+    </div>
+
+    <!-- AMBIENT PAGE -->
+    <div class="page" id="page-ambient" data-page="ambient">
+      <h2 class="section-title">صداهای طبیعت</h2>
+      <p class="section-sub">صداهای طبیعت و محیط برای آرامش عمیق</p>
+      <div class="sound-list" id="ambientList"></div>
+    </div>
+
+    <!-- MESSAGES PAGE -->
+    <div class="page" id="page-messages" data-page="messages">
+      <h2 class="section-title">یه پیام برای امشب</h2>
+      <p class="section-sub">چند جمله آروم برای قبل از خواب</p>
+      <div class="message-card">
+        <p class="message-text" id="messageText"></p>
+      </div>
+      <div class="message-actions">
+        <button class="btn btn-primary" id="btnNextMsg">پیام بعدی</button>
+        <button class="btn btn-ghost" id="btnRandomMsg">پیام تصادفی</button>
+        <button class="btn btn-ghost" id="btnFavMsg" aria-label="علاقه مندی">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- MY SLEEP PAGE -->
+    <div class="page" id="page-mysleep" data-page="mysleep">
+      <h2 class="section-title">خواب من</h2>
+      <p class="section-sub">خلاصه وضعیت امشب</p>
+      <div class="info-card">
+        <div class="info-row">
+          <span class="info-label">ساعت خواب مورد نظر</span>
+          <span class="info-value" id="targetSleep">--:--</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">زمان بیدار شدن</span>
+          <span class="info-value" id="wakeTime">--:--</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">بکگراند</span>
+          <span class="info-value" id="activeRoutine">پیش فرض</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">تایمر امشب</span>
+          <span class="info-value" id="tonightTimer">تنظیم نشده</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">آخرین صدا</span>
+          <span class="info-value" id="lastSound">-</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px;" id="btnSleepMode">حالت خواب</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:10px;" id="btnOpenTimer">تایمر خواب</button>
+    </div>
+
+    <!-- FAVORITES PAGE -->
+    <div class="page" id="page-favorites" data-page="favorites">
+      <h2 class="section-title">علاقه مندی ها</h2>
+      <p class="section-sub">صداها و پیام های مورد علاقه تو</p>
+      <div id="favContent"></div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page" id="page-settings" data-page="settings">
+      <h2 class="section-title">تنظیمات</h2>
+      <p class="section-sub">تنظیمات برنامه رو اینجا عوض کن</p>
+
+      <div class="settings-group">
+        <p class="settings-group-title">عملکرد</p>
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">حالت کاهش حرکت</div>
+            <div class="setting-desc">انیمیشن ها کمتر میشن</div>
+          </div>
+          <button class="toggle" id="togReducedMotion" aria-label="حالت کاهش حرکت"></button>
+        </div>
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">حالت عملکرد بهتر</div>
+            <div class="setting-desc">برای موبایل های ضعیف</div>
+          </div>
+          <button class="toggle" id="togPerfMode" aria-label="حالت عملکرد بهتر"></button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <p class="settings-group-title">صدا و تایمر</p>
+        <div class="setting-item">
+          <div class="setting-label">مدت پیش فرض تایمر</div>
+          <select class="select-setting" id="selDefaultTimer">
+            <option value="05">05 دقیقه</option>
+            <option value="10" selected>10 دقیقه</option>
+            <option value="15">15 دقیقه</option>
+            <option value="30">30 دقیقه</option>
+            <option value="45">45 دقیقه</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">خاموش شدن تدریجی</div>
+            <div class="setting-desc">در چند دقیقه آخر صدا کم بشه</div>
+          </div>
+          <button class="toggle on" id="togFadeOut" aria-label="خاموش شدن تدریجی"></button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <p class="settings-group-title">سایر</p>
+        <div class="setting-item">
+          <div>
+            <div class="setting-label">ویبره هنگام لمس</div>
+            <div class="setting-desc">لرزش ملایم روی دکمه‌ها</div>
+          </div>
+          <button class="toggle" id="togVibrate" aria-label="ویبره"></button>
+        </div>
+        <button class="btn btn-ghost" style="width:100%;margin-top:8px;color:#e88a8a;" id="btnClearData">حذف اطلاعات ذخیره شده</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mini Player -->
+  <div class="mini-player" id="miniPlayer">
+    <div class="mini-thumb" id="miniThumb">
+      <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    </div>
+    <div class="mini-info">
+      <div class="mini-title" id="miniTitle">-</div>
+      <div class="mini-progress"><div class="mini-progress-bar" id="miniProgress"></div></div>
+    </div>
+    <div class="mini-controls">
+      <button class="mini-btn" id="miniPlayBtn" aria-label="پخش یا توقف">
+        <svg viewBox="0 0 24 24" id="miniPlayIcon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <button class="mini-btn" id="miniExpandBtn" aria-label="باز کردن پخش کننده">
+        <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" data-page="home" aria-label="خانه">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>خانه</span>
+    </button>
+    <button class="nav-item" data-page="ambient" aria-label="صداها">
+      <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span>آرامش عمیق</span>
+    </button>
+    <button class="nav-item" data-page="mysleep" aria-label="خواب من">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span>خواب من</span>
+    </button>
+    <button class="nav-item" data-page="favorites" aria-label="علاقه مندی ها">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span>علاقه مندی</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Full Player Sheet -->
+<div class="sheet-overlay" id="playerOverlay"></div>
+<div class="bottom-sheet" id="playerSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-content">
+    <div class="player-art" id="playerArt">
+      <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <div class="visualizer">
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+        <div class="viz-bar"></div>
+      </div>
+    </div>
+    <h2 class="player-title" id="playerTitle">-</h2>
+    <p class="player-cat" id="playerCat">-</p>
+    <div class="player-progress-wrap">
+      <div class="progress-track" id="progressTrack">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="player-time">
+        <span id="timeCurrent">۰:۰۰</span>
+        <span id="timeTotal">۰:۰۰</span>
+      </div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" id="btnPrev" aria-label="قبلی">
+        <svg viewBox="0 0 24 24"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+      </button>
+      <button class="ctrl-btn main" id="btnPlayPause" aria-label="پخش یا توقف">
+        <svg viewBox="0 0 24 24" id="playPauseIcon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <button class="ctrl-btn" id="btnNext" aria-label="بعدی">
+        <svg viewBox="0 0 24 24"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+      </button>
+    </div>
+    <div class="player-extra">
+      <button class="extra-btn" id="btnTimer" aria-label="تایمر">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>تایمر</span>
+      </button>
+      <button class="extra-btn fav" id="btnPlayerFav" aria-label="علاقه مندی">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>علاقه مندی</span>
+      </button>
+      <button class="extra-btn" id="btnSleepModePlayer" aria-label="حالت خواب">
+        <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <span>حالت خواب</span>
+      </button>
+      <button class="extra-btn" id="btnVolume" aria-label="صدا">
+        <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <span>صدا</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Timer Sheet -->
+<div class="sheet-overlay" id="timerOverlay"></div>
+<div class="bottom-sheet" id="timerSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-content">
+    <h2 class="section-title" style="text-align:center;margin-bottom:8px;">تایمر خواب</h2>
+    <p class="section-sub" style="text-align:center;">تایمر برابر با مدت زمان صدای انتخاب‌شده تنظیم می‌شود</p>
+    <div class="info-card" style="margin-bottom:16px;">
+      <div class="info-row">
+        <span class="info-label">صدا</span>
+        <span class="info-value" id="timerSoundName">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">مدت تایمر</span>
+        <span class="info-value" id="timerSoundDur">-</span>
+      </div>
+    </div>
+    <div class="fade-option">
+      <div>
+        <div class="setting-label">خاموش شدن تدریجی</div>
+        <div class="setting-desc">در ثانیه‌های آخر صدا آروم کم بشه</div>
+      </div>
+      <button class="toggle on" id="togFadeSheet" aria-label="خاموش شدن تدریجی"></button>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" id="btnSetTimer">فعال‌سازی تایمر و حالت خواب</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:10px;" id="btnCancelTimer">لغو تایمر</button>
+  </div>
+</div>
+
+<!-- Volume Sheet -->
+<div class="sheet-overlay" id="volumeOverlay"></div>
+<div class="bottom-sheet" id="volumeSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-content">
+    <h2 class="section-title" style="text-align:center;margin-bottom:8px;">تنظیم صدا</h2>
+    <p class="section-sub" style="text-align:center;">میزان بلندی صدا را تنظیم کنید</p>
+    <div style="display:flex;align-items:center;gap:14px;padding:20px 8px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+      <input type="range" id="volumeSlider" min="0" max="100" value="80" style="flex:1;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:rgba(255,255,255,0.1);outline:none;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--pink-soft)" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+    </div>
+    <p id="volumePercent" style="text-align:center;font-size:1.1rem;color:var(--pink-soft);margin-bottom:20px;">۸۰٪</p>
+    <button class="btn btn-primary" style="width:100%;" id="btnCloseVolume">تأیید</button>
+  </div>
+</div>
+
+<!-- Sleep Mode -->
+<div class="sleep-mode-overlay" id="sleepMode">
+  <div class="sleep-mode-bg"></div>
+  <div class="sleep-mode-content">
+    <p class="sleep-sound-name" id="sleepSoundName">-</p>
+    <div class="sleep-controls">
+      <button class="sleep-play" id="sleepPlayBtn" aria-label="پخش یا توقف">
+        <svg viewBox="0 0 24 24" id="sleepPlayIcon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+    </div>
+    <p class="sleep-timer-display" id="sleepTimerDisplay"></p>
+    <button class="sleep-exit" id="btnExitSleep">خروج از حالت خواب</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ==================================================
+     DATA
+  ================================================== */
+  const SOUNDS = [
+    // لالایی‌ها — ۵ فایل اول پوشه lullaby
+    { id: 'lul-1', title: 'لالایی 1', category: 'lullaby', duration: 223.027664, src: 'lullaby/PNZmoux6ZUedH9RkU8u8+f95WAlwca-4.m4a', description: 'لالایی آرام برای خواب' },
+    { id: 'lul-2', title: 'لالایی 2', category: 'lullaby', duration: 1021.399365, src: 'lullaby/E9l7v4F9CpsE1Ku6YI16+24_OgVfZheY.m4a', description: 'لالایی آرام برای خواب' },
+    { id: 'lul-3', title: 'لالایی 3', category: 'lullaby', duration: 596.265215, src: 'lullaby/HPHkJEVlcHPZXlgbvkNI+ckIDbWfQCgc.m4a', description: 'لالایی آرام برای خواب' },
+    { id: 'lul-4', title: 'لالایی 4', category: 'lullaby', duration: 207.795374, src: 'lullaby/YaAh3G6JKZFOObVccFE8+6Wo7bhML1J8.m4a', description: 'لالایی آرام برای خواب' },
+    { id: 'lul-5', title: 'لالایی 5', category: 'lullaby', duration: 134.815057, src: 'lullaby/FR3fsvby59GZpnxVLQYv+pJJlvG2Lkss.m4a', description: 'لالایی آرام برای خواب' },
+
+    // ASMR — ۲ فایل اول پوشه asmr
+    { id: 'asmr-1', title: 'ASMR 1', category: 'asmr', duration: 901.015510, src: 'asmr/3390839.mp3', description: 'صدای ASMR برای آرامش' },
+    { id: 'asmr-2', title: 'ASMR 2', category: 'asmr', duration: 706.612245, src: 'asmr/3551412.mp3', description: 'صدای ASMR برای آرامش' },
+    { id: 'asmr-3', title: 'ASMR 3', category: 'asmr', duration: 604.0, src: 'asmr/7167970.mp3', description: 'صدای ASMR برای آرامش' },
+    { id: 'asmr-4', title: 'ASMR 4', category: 'asmr', duration: 508.0, src: 'asmr/RTy2mUzdWyxzocAVqPSX+fCbkc4DIsvc.m4a', description: 'صدای ASMR برای آرامش' },
+
+    // صداهای آرامش بخش — هر ۷ فایل پوشه ambient
+    { id: 'amb-1', title: 'صدای آرامش بخش 1', category: 'ambient', duration: 47.647347, src: 'ambient/آواز پرنده در بارون.mp3', description: 'صدای آرام طبیعت' },
+    { id: 'amb-2', title: 'صدای آرامش بخش 2', category: 'ambient', duration: 32.548571, src: 'ambient/رعد و برق هنگام آغاز باران.mp3', description: 'صدای آرام طبیعت' },
+    { id: 'amb-3', title: 'صدای آرامش بخش 3', category: 'ambient', duration: 133.564082, src: 'ambient/صدای 8 بعدی پرندگان در جنگل بکر.mp3', description: 'صدای آرام طبیعت' },
+    { id: 'amb-4', title: 'صدای آرامش بخش 4', category: 'ambient', duration: 125.387755, src: 'ambient/صدای جیرجیرک ها در جنگل تاریک.mp3', description: 'صدای آرام طبیعت' },
+    { id: 'amb-5', title: 'صدای آرامش بخش 5', category: 'ambient', duration: 307.069388, src: 'ambient/صدای پرنده و طبیعت در فضای باز.mp3', description: 'صدای آرام طبیعت' },
+    { id: 'amb-6', title: 'صدای آرامش بخش 6', category: 'ambient', duration: 169.195102, src: 'ambient/موسیقی آرمش داهنده صدای طبعت در شب.mp3', description: 'صدای آرام طبیعت' },
+    { id: 'amb-7', title: 'صدای آرامش بخش 7', category: 'ambient', duration: 224.287347, src: 'ambient/موسیقی بیکلام ملایم.mp3', description: 'صدای آرام طبیعت' }
+  ];
+
+const MESSAGES = [
+  'آیداجونمممم شبت بخیررر، دیگه وقتشه جوجو بره شارژ بشه 😂🐣💗',
+  'خسته نباشی خوشگل بابایییی، امروز هرچی بود تموم شد رفت، حالا فقط خواب و استراحتتت 😝💞',
+  'قربون اون خستگیات برممم، بذار امشب همه‌شون غیب بشن و فردا با انرژی برگردییی 🥹💗',
+  'بخواب جیگرممم، فردا دوباره باید با اون شیطنتای مخصوص خودت همه رو کلافه کنی 😂🤭💖',
+  'آیداااا دیگه گوشی رو بذار کناررر، جوجو وقت خوابههههه 😭😂🐣',
+  'شب بخیررر خوشگل بابایی، امیدوارم امشب مغزت مرخصی بگیره و دیگه هیچی رو تحلیل نکنه 😂🤍',
+  'خسته نباشی دختر قویییی، امروز رو هم رد کردی و هنوز سرپایییی، ایول بهتتت 😝💪💗',
+  'قربون اون قلب مهربونت برممم، امشب فقط آروم باش و بذار دلت یه کم نفس بکشه 🥹💞',
+  'خوابای قشنگ ببینی جوجووو، فقط لطفاً تو خوابت دیگه کسی رو اذیت نکنیااا 😂😭💗',
+  'شب بخیر آیداجونممم، فردا یه روز جدیده، پس امشب پرونده امروز رو ببنددد 📖😂💖',
+  'خسته نباشی پیشییی، اگه امروز سخت گذشت، مهم اینه که بازم ادامه دادییی 🐣🤍',
+  'قربون اون خنده‌هات برممم، امیدوارم فردا هزار تا دلیل برای خندیدن پیدا کنییی 😍💗',
+  'برو بخواب جوجووو، باتریت رسیده به دو درصد دیگه 😂🔋🐣💞',
+  'آیداجونممم شبت آروممم، هیچ فکر اضافه‌ای هم حق نداره امشب بیاد سراغتتت 😝🤍',
+  'خسته نباشی خوشگلممم، تو قوی‌ای ولی قوی بودن یعنی گاهی هم بگی خب دیگه، برم بخوابم 😂💗',
+  'قربون اون جوجوی پرتلاشم برممم، امروز هرچی تونستی انجام دادی، بقیه‌ش برای فردااا 🥹💞',
+  'شب بخیرررر، امیدوارم خوابت از خودت هم قشنگ‌تر باشه البته بعید میدونم 😂🤭💖',
+  'بخواب جیگررر، فردا دوباره باید با انرژی بیدار شی و دنیا رو تحمل کنییی 😂😭💗',
+  'خسته نباشی آیداجونممم، یه نفس عمیق بکش و با خیال راحت چشماتو ببنددد 🤍🥹',
+  'امشب فقط استراحت کن جوجو، فردا دوباره هرچی شد باهم بهش میخندیممم 😂💞',
+  'قربونت برممم، هیچ روز بدی قرار نیست تا ابد بمونه؛ فردا میتونه خیلی قشنگ‌تر باشه 😍💗',
+  'آیداااا وقت خوابههههه، نکنه باز تا نصف شب بیدار بمونی بعد صبح بگی من چرا خستممم 😂😭🐣',
+  'شب بخیر خوشگل باباییی، امیدوارم بالش امشب باهات مهربون باشه و خوابت ببره سریع 😂🤭💗',
+  'خسته نباشی جوجوی قوی مننن، حتی اگه امروز یه جاهایی سخت بود، بازم کم نیاوردییی 💖💪',
+  'بخواب پیشییی، فردا قراره نسخه پرانرژی‌تر آیدا رو ببینیممم 😝🐣💞',
+  'قربون اون دل کوچولوت برممم، امشب هیچ غصه‌ای رو با خودت نبر توی تختتت 🤍🥹',
+  'شب بخیررر جیگرممم، امیدوارم فردا صبح با یه حال خوب از خواب بیدار شییی 😍💗',
+  'امشب مغزت: تعطیل 😂❌ فردا دوباره شروع به کاررر؛ حالا برو بخواب جوجووو 🐣💞',
+  'خسته نباشی خوشگلممم، امروز رو هم با موفقیت پشت سر گذاشتی، مدال افتخار تقدیم به جوجووو 🏅😂💗',
+  'قربون اون انرژی قشنگت برممم، حتی وقتی خسته‌ای هم یه چیزی توی تو هست که ادامه میده 🥹💖',
+  'شب بخیررر آیداجونمم، خواب خوش ببینی و فردا کلی اتفاق کوچولوی خوب منتظرت باشه 💞🤍',
+  'بخواب جوجووو، فردا هنوز کلی کار داری که با اون قیافه شیطونت همه رو سورپرایز کنی 😂🤭💗',
+  'خسته نباشی قهرمان کوچولووو، امروز هرچی از دستت برمیومد انجام دادی و همین کافیههه 🐣💞',
+  'آیداجونممم قربونت برم، امشب فقط آروم باش، نفس بکش و بذار خستگیات آب بشنننن 🥹🤍',
+  'شب بخیررر خوشگل بابایی، امیدوارم امشب خوابت انقدر خوب باشه که دلت نخواد صبح بیدار شی 😂😭💗',
+  'فردا هرچی شد قدم به قدم جلو میریم، عجله‌ای نیست جوجووو؛ تو از پسش برمیای 💖💪',
+  'قربون اون روحیه قویت برممم، فقط یادت باشه استراحت کردن هم خودش یه جور قوی بودنههه 🤍💞',
+  'برو بخواب آیداااا، این آخرین اخطار رسمی جوجوییییه 😂📢🐣💗',
+  'خسته نباشی جیگرممم، امیدوارم امشب دلت سبک و ذهنت آروم و خوابت عمیق باشه 🥹💞',
+  'شب بخیررر پیشییی، فردا با انرژی بیدار شو که دنیا هنوز کلی جای قشنگ برای دیدن داره 😍💖',
+  'قربون اون لبخندت برممم، امیدوارم فردا بیشتر از امروز لبخند بزنییی 🤭💗',
+  'آیداجونمممم امروز هرچی شد دیگه شد؛ الان فقط یه پتوی گرم و یه خواب درست‌وحسابی لازم داری 😂🐣🤍',
+  'خسته نباشی خوشگل مننن، هیچوقت به خاطر یه روز سخت فکر نکن ضعیفی؛ تو فقط یه کم خسته‌ای و نیاز به استراحت دارییی 💞🥹',
+  'شب بخیررر جوجووو، امیدوارم خوابت پر از آرامش باشه و صبح با انرژی بیدار شییی 😴💗',
+  'قربونت برممم، فردا دوباره شروع کن؛ لازم نیست همه‌چیو امشب حل کنییی 🤍💖',
+  'بخواب آیداااا، ساعت خواب جوجو گذشتهههه، الان دیگه حتی گربه‌ها هم خوابیدن 😂🐱💞',
+  'خسته نباشی قوی‌ترین جوجوی شیطون دنیاااا 😝🐣💗 امروز هم تموم شد و تو بازم از پسش براومدییی',
+  'شب بخیررر خوشگل باباییی، فردا منتظر یه آیدای پرانرژی و خندون و شیطونیممم 😂🤭💖',
+  'قربون اون قلب مهربونت برممم، امشب خودتو اذیت نکن و بذار یه خواب خوب همه خستگیتو بشوره ببره 🥹💞',
+  'آیداجونممم شبت بخیررر، خسته نباشییی، فردا دوباره از اول؛ آروم، قوی و با همون لبخند قشنگتتت 🤍💗'
+];
+
+  /* ==================================================
+     STATE
+  ================================================== */
+  const state = {
+    currentPage: 'home',
+    currentSound: null,
+    isPlaying: false,
+    volume: 0.8,
+    currentTime: 0,
+    duration: 0,
+    sleepTimer: null, // minutes remaining or null
+    sleepTimerEnd: null,
+    fadeOut: true,
+    favorites: [],
+    favMessages: [],
+    settings: {
+      reducedMotion: false,
+      perfMode: false,
+      defaultTimer: 10,
+      fadeOut: true,
+      vibrate: false
+    },
+    messageIndex: 0,
+    mix: {},
+    lastSoundId: null,
+    targetSleep: '',
+    wakeTime: ''
+  };
+
+  /* ==================================================
+     AUDIO MANAGER (Demo-ready, real src ready)
+  ================================================== */
+  const AudioManager = {
+    audio: null,
+    fadeInterval: null,
+    progressInterval: null,
+    timerInterval: null,
+    simulated: true, // demo mode without real files
+
+    init() {
+      this.audio = new Audio();
+      this.audio.loop = false;
+      this.audio.volume = state.volume;
+      this.audio.addEventListener('ended', () => this.onEnded());
+      this.audio.addEventListener('timeupdate', () => this.onTimeUpdate());
+      this.audio.addEventListener('loadedmetadata', () => {
+        if (this.audio && this.audio.duration && isFinite(this.audio.duration)) {
+          state.duration = this.audio.duration;
+          updateProgressUI();
+          updateTimerSheetInfo();
+        }
+      });
+      this.audio.addEventListener('error', () => {
+        this.simulated = true;
+      });
+    },
+
+    play(sound) {
+      if (!sound) return;
+      state.currentSound = sound;
+      state.lastSoundId = sound.id;
+      state.duration = sound.duration || 600;
+      state.currentTime = 0;
+      this.stopFade();
+      this.audio.loop = false;
+
+      if (sound.src && sound.src.length > 5) {
+        this.simulated = false;
+        this.audio.src = sound.src;
+        this.audio.play().catch(() => {
+          this.simulated = true;
+          this.startSimulated();
+        });
+      } else {
+        this.simulated = true;
+        this.startSimulated();
+      }
+      state.isPlaying = true;
+      this.startProgress();
+      persist();
+      updateUI();
+      updateTimerSheetInfo();
+    },
+
+    startSimulated() {
+      this.stopProgress();
+      this.progressInterval = setInterval(() => {
+        if (!state.isPlaying) return;
+        state.currentTime += 1;
+        if (state.currentTime >= state.duration) {
+          state.currentTime = state.duration;
+          this.stop();
+          this.clearTimer();
+          exitSleepMode();
+          showToast('پخش تمام شد. شبت بخیر.');
+          return;
+        }
+        updateProgressUI();
+      }, 1000);
+    },
+
+    pause() {
+      state.isPlaying = false;
+      if (!this.simulated && this.audio) this.audio.pause();
+      this.stopProgress();
+      updateUI();
+    },
+
+    resume() {
+      if (!state.currentSound) return;
+      state.isPlaying = true;
+      if (!this.simulated && this.audio) {
+        this.audio.play().catch(() => {});
+      } else {
+        this.startSimulated();
+      }
+      this.startProgress();
+      updateUI();
+    },
+
+    stop() {
+      state.isPlaying = false;
+      state.currentTime = 0;
+      if (this.audio) {
+        this.audio.pause();
+        this.audio.currentTime = 0;
+      }
+      this.stopProgress();
+      this.stopFade();
+      updateUI();
+    },
+
+    toggle() {
+      if (state.isPlaying) this.pause();
+      else if (state.currentSound) this.resume();
+    },
+
+    setVolume(v) {
+      state.volume = Math.max(0, Math.min(1, v));
+      if (this.audio) this.audio.volume = state.volume;
+    },
+
+    seek(ratio) {
+      const t = ratio * state.duration;
+      state.currentTime = t;
+      if (!this.simulated && this.audio) this.audio.currentTime = t;
+      updateProgressUI();
+    },
+
+    next() {
+      if (!state.currentSound) return;
+      const list = SOUNDS.filter(s => s.category === state.currentSound.category);
+      const idx = list.findIndex(s => s.id === state.currentSound.id);
+      const next = list[(idx + 1) % list.length];
+      this.play(next);
+    },
+
+    prev() {
+      if (!state.currentSound) return;
+      const list = SOUNDS.filter(s => s.category === state.currentSound.category);
+      const idx = list.findIndex(s => s.id === state.currentSound.id);
+      const prev = list[(idx - 1 + list.length) % list.length];
+      this.play(prev);
+    },
+
+    startProgress() {
+      this.stopProgress();
+      if (this.simulated) return; // handled in startSimulated
+      this.progressInterval = setInterval(() => updateProgressUI(), 500);
+    },
+
+    stopProgress() {
+      if (this.progressInterval) {
+        clearInterval(this.progressInterval);
+        this.progressInterval = null;
+      }
+    },
+
+    onTimeUpdate() {
+      if (this.audio && !this.simulated) {
+        state.currentTime = this.audio.currentTime;
+        state.duration = this.audio.duration || state.duration;
+      }
+    },
+
+    onEnded() {
+      this.stop();
+      this.clearTimer();
+      exitSleepMode();
+      showToast('پخش تمام شد. شبت بخیر فداتشم من.');
+    },
+
+    // seconds: remaining play time of current sound
+    startTimer(seconds) {
+      this.clearTimer();
+      if (!seconds || seconds <= 0) {
+        state.sleepTimer = null;
+        state.sleepTimerEnd = null;
+        updateTimerUI();
+        return;
+      }
+      state.sleepTimer = seconds / 60;
+      state.sleepTimerEnd = Date.now() + seconds * 1000;
+      const fadeWindow = Math.min(30, Math.max(5, Math.floor(seconds * 0.15)));
+      this.timerInterval = setInterval(() => {
+        const left = Math.max(0, Math.ceil((state.sleepTimerEnd - Date.now()) / 1000));
+        state.sleepTimer = left / 60;
+        if (left <= 0) {
+          this.clearTimer();
+          if (state.settings.fadeOut || state.fadeOut) {
+            this.fadeOutAndStop(Math.min(8, fadeWindow));
+          } else {
+            this.stop();
+          }
+          exitSleepMode();
+          showToast('تایمر خواب تموم شد. شبت بخیر بچه جون.');
+        } else if ((state.settings.fadeOut || state.fadeOut) && left <= fadeWindow && left > 0) {
+          const vol = (left / fadeWindow) * state.volume;
+          if (this.audio) this.audio.volume = Math.max(0, vol);
+        }
+        updateTimerUI();
+      }, 1000);
+      updateTimerUI();
+      persist();
+    },
+
+    clearTimer() {
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+      }
+      state.sleepTimer = null;
+      state.sleepTimerEnd = null;
+      if (this.audio) this.audio.volume = state.volume;
+      updateTimerUI();
+    },
+
+    fadeOutAndStop(seconds) {
+      this.stopFade();
+      const steps = seconds * 4;
+      let step = 0;
+      const startVol = this.audio ? this.audio.volume : state.volume;
+      this.fadeInterval = setInterval(() => {
+        step++;
+        const v = startVol * (1 - step / steps);
+        if (this.audio) this.audio.volume = Math.max(0, v);
+        if (step >= steps) {
+          this.stopFade();
+          this.stop();
+        }
+      }, 250);
+    },
+
+    stopFade() {
+      if (this.fadeInterval) {
+        clearInterval(this.fadeInterval);
+        this.fadeInterval = null;
+      }
+    }
+  };
+
+  /* ==================================================
+     PERSISTENCE
+  ================================================== */
+  function persist() {
+    try {
+      localStorage.setItem('khabAram', JSON.stringify({
+        favorites: state.favorites,
+        favMessages: state.favMessages,
+        settings: state.settings,
+        lastSoundId: state.lastSoundId,
+        messageIndex: state.messageIndex,
+        targetSleep: state.targetSleep,
+        wakeTime: state.wakeTime
+      }));
+    } catch (e) {}
+  }
+
+  function loadPersisted() {
+    try {
+      const raw = localStorage.getItem('khabAram');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.favorites) state.favorites = data.favorites;
+      if (data.favMessages) state.favMessages = data.favMessages;
+      if (data.settings) Object.assign(state.settings, data.settings);
+      if (data.lastSoundId) state.lastSoundId = data.lastSoundId;
+      if (typeof data.messageIndex === 'number') state.messageIndex = data.messageIndex;
+      if (data.targetSleep) state.targetSleep = data.targetSleep;
+      if (data.wakeTime) state.wakeTime = data.wakeTime;
+    } catch (e) {}
+  }
+
+  /* ==================================================
+     UI HELPERS
+  ================================================== */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function vibrate() {
+    if (state.settings.vibrate && navigator.vibrate) {
+      navigator.vibrate(12);
+    }
+  }
+
+  function formatTime(sec) {
+    if (!sec || isNaN(sec)) return '۰:۰۰';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return toPersianNum(m) + ':' + (s < 10 ? '۰' : '') + toPersianNum(s);
+  }
+
+  function toPersianNum(n) {
+    const map = '۰۱۲۳۴۵۶۷۸۹';
+    return String(n).replace(/\d/g, d => map[d]);
+  }
+
+  function getSoundIcon(cat) {
+    if (cat === 'lullaby') return '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+    if (cat === 'asmr') return '<svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>';
+    return '<svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>';
+  }
+
+  /* ==================================================
+     RENDER LISTS
+  ================================================== */
+  function renderSoundList(containerId, category, filterCat) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    let list = SOUNDS.filter(s => s.category === category);
+    if (filterCat && filterCat !== 'all') {
+      // simple keyword filter for asmr demo
+      list = list.filter(s => s.title.includes(filterCat) || s.description.includes(filterCat));
+    }
+    el.innerHTML = '';
+    list.forEach(sound => {
+      const isFav = state.favorites.includes(sound.id);
+      const isPlaying = state.currentSound && state.currentSound.id === sound.id && state.isPlaying;
+      const item = document.createElement('div');
+      item.className = 'sound-item' + (isPlaying ? ' playing' : '');
+      item.dataset.id = sound.id;
+      item.innerHTML = `
+        <div class="sound-thumb">${getSoundIcon(sound.category)}</div>
+        <div class="sound-info">
+          <h4>${sound.title}</h4>
+          <span>${toPersianNum(Math.floor(sound.duration / 60))} دقیقه</span>
+        </div>
+        <div class="sound-actions">
+          <button class="icon-btn fav-btn${isFav ? ' active' : ''}" data-action="fav" data-id="${sound.id}" aria-label="علاقه مندی">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <button class="icon-btn play-btn${isPlaying ? ' active' : ''}" data-action="play" data-id="${sound.id}" aria-label="پخش">
+            <svg viewBox="0 0 24 24">${isPlaying ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>' : '<polygon points="5 3 19 12 5 21 5 3"/>'}</svg>
+          </button>
+        </div>
+      `;
+      el.appendChild(item);
+    });
+  }
+
+  function renderFavorites() {
+    const el = document.getElementById('favContent');
+    if (!el) return;
+    const favSounds = SOUNDS.filter(s => state.favorites.includes(s.id));
+    if (favSounds.length === 0 && state.favMessages.length === 0) {
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <p class="empty-title">هنوز چیزی اینجا ذخیره نکردی.</p>
+          <p class="empty-sub">هر صدایی که دوست داشتی رو میتونی اینجا نگه داری.</p>
+        </div>
+      `;
+      return;
+    }
+    let html = '';
+    if (favSounds.length) {
+      html += '<div class="sound-list" id="favSoundList"></div>';
+    }
+    if (state.favMessages.length) {
+      html += '<p class="section-sub" style="margin-top:20px;">پیام های ذخیره شده</p>';
+      state.favMessages.forEach((msg, i) => {
+        html += `<div class="info-card" style="margin-bottom:8px;"><p style="font-size:0.92rem;line-height:1.6;">${msg}</p></div>`;
+      });
+    }
+    el.innerHTML = html;
+    if (favSounds.length) {
+      const listEl = document.getElementById('favSoundList');
+      favSounds.forEach(sound => {
+        const isPlaying = state.currentSound && state.currentSound.id === sound.id && state.isPlaying;
+        const item = document.createElement('div');
+        item.className = 'sound-item' + (isPlaying ? ' playing' : '');
+        item.innerHTML = `
+          <div class="sound-thumb">${getSoundIcon(sound.category)}</div>
+          <div class="sound-info">
+            <h4>${sound.title}</h4>
+            <span>${toPersianNum(Math.floor(sound.duration / 60))} دقیقه</span>
+          </div>
+          <div class="sound-actions">
+            <button class="icon-btn play-btn${isPlaying ? ' active' : ''}" data-action="play" data-id="${sound.id}" aria-label="پخش">
+              <svg viewBox="0 0 24 24">${isPlaying ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>' : '<polygon points="5 3 19 12 5 21 5 3"/>'}</svg>
+            </button>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+  }
+
+  function renderMessage() {
+    const el = document.getElementById('messageText');
+    if (el) el.textContent = MESSAGES[state.messageIndex] || MESSAGES[0];
+    const favBtn = document.getElementById('btnFavMsg');
+    if (favBtn) {
+      const isFav = state.favMessages.includes(MESSAGES[state.messageIndex]);
+      favBtn.classList.toggle('active', isFav);
+    }
+  }
+
+  function updateProgressUI() {
+    const ratio = state.duration ? (state.currentTime / state.duration) * 100 : 0;
+    const mini = document.getElementById('miniProgress');
+    const fill = document.getElementById('progressFill');
+    if (mini) mini.style.width = ratio + '%';
+    if (fill) fill.style.width = ratio + '%';
+    const cur = document.getElementById('timeCurrent');
+    const tot = document.getElementById('timeTotal');
+    if (cur) cur.textContent = formatTime(state.currentTime);
+    if (tot) tot.textContent = formatTime(state.duration);
+  }
+
+  function updateTimerUI() {
+    const display = document.getElementById('sleepTimerDisplay');
+    const tonight = document.getElementById('tonightTimer');
+    if (state.sleepTimerEnd) {
+      const left = Math.max(0, Math.ceil((state.sleepTimerEnd - Date.now()) / 1000));
+      const txt = formatTime(left) + ' مانده';
+      if (display) display.textContent = txt;
+      if (tonight) tonight.textContent = txt;
+    } else {
+      if (display) display.textContent = '';
+      if (tonight) tonight.textContent = 'تنظیم نشده';
+    }
+  }
+
+  function updateTimerSheetInfo() {
+    const nameEl = document.getElementById('timerSoundName');
+    const durEl = document.getElementById('timerSoundDur');
+    if (!nameEl || !durEl) return;
+    if (state.currentSound) {
+      nameEl.textContent = state.currentSound.title;
+      const remaining = Math.max(0, Math.ceil(state.duration - state.currentTime));
+      durEl.textContent = formatTime(remaining);
+    } else {
+      nameEl.textContent = 'صدایی پخش نشده';
+      durEl.textContent = '-';
+    }
+  }
+
+  function updateUI() {
+    // Mini player
+    const mini = document.getElementById('miniPlayer');
+    if (state.currentSound) {
+      mini.classList.add('show');
+      document.getElementById('miniTitle').textContent = state.currentSound.title;
+      const icon = document.getElementById('miniPlayIcon');
+      if (state.isPlaying) {
+        icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      } else {
+        icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      }
+    } else {
+      mini.classList.remove('show');
+    }
+
+    // Full player
+    if (state.currentSound) {
+      document.getElementById('playerTitle').textContent = state.currentSound.title;
+      document.getElementById('playerCat').textContent = 
+        state.currentSound.category === 'lullaby' ? 'لالایی' :
+        state.currentSound.category === 'asmr' ? 'ASMR' : 'صداهای آرامش بخش';
+      const art = document.getElementById('playerArt');
+      art.classList.toggle('playing', state.isPlaying);
+      const pp = document.getElementById('playPauseIcon');
+      if (state.isPlaying) {
+        pp.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      } else {
+        pp.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      }
+      const favBtn = document.getElementById('btnPlayerFav');
+      favBtn.classList.toggle('active', state.favorites.includes(state.currentSound.id));
+    }
+
+    // Sleep mode
+    if (state.currentSound) {
+      document.getElementById('sleepSoundName').textContent = state.currentSound.title;
+      const si = document.getElementById('sleepPlayIcon');
+      if (state.isPlaying) {
+        si.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      } else {
+        si.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      }
+    }
+
+    // Last sound
+    const last = document.getElementById('lastSound');
+    if (last && state.lastSoundId) {
+      const s = SOUNDS.find(x => x.id === state.lastSoundId);
+      last.textContent = s ? s.title : '-';
+    }
+
+    // Re-render current lists if needed
+    if (state.currentPage === 'lullaby') renderSoundList('lullabyList', 'lullaby');
+    if (state.currentPage === 'asmr') renderSoundList('asmrList', 'asmr');
+    if (state.currentPage === 'ambient') renderSoundList('ambientList', 'ambient');
+    if (state.currentPage === 'favorites') renderFavorites();
+
+    updateProgressUI();
+    updateTimerUI();
+  }
+
+  /* ==================================================
+     NAVIGATION
+  ================================================== */
+  function navigate(page) {
+    state.currentPage = page;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
+
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.page === page || 
+        (page === 'lullaby' || page === 'asmr' || page === 'messages') && n.dataset.page === 'ambient');
+    });
+
+    // special pages map to sounds tab visually
+    if (['lullaby', 'asmr', 'messages'].includes(page)) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const soundsNav = document.querySelector('.nav-item[data-page="ambient"]');
+      if (soundsNav) soundsNav.classList.add('active');
+    }
+
+    if (page === 'lullaby') renderSoundList('lullabyList', 'lullaby');
+    if (page === 'asmr') renderSoundList('asmrList', 'asmr');
+    if (page === 'ambient') renderSoundList('ambientList', 'ambient');
+    if (page === 'messages') renderMessage();
+    if (page === 'favorites') renderFavorites();
+    if (page === 'mysleep') updateMySleep();
+    if (page === 'settings') applySettingsUI();
+
+    window.scrollTo(0, 0);
+    document.getElementById('mainContent').scrollTop = 0;
+  }
+
+  function updateMySleep() {
+    document.getElementById('targetSleep').textContent = state.targetSleep || '--:--';
+    document.getElementById('wakeTime').textContent = state.wakeTime || '--:--';
+  }
+
+  /* ==================================================
+     SHEETS
+  ================================================== */
+  function openSheet(id) {
+    document.getElementById(id + 'Overlay').classList.add('show');
+    document.getElementById(id + 'Sheet').classList.add('show');
+  }
+  function closeSheet(id) {
+    document.getElementById(id + 'Overlay').classList.remove('show');
+    document.getElementById(id + 'Sheet').classList.remove('show');
+  }
+
+  /* ==================================================
+     SETTINGS UI
+  ================================================== */
+  function applySettingsUI() {
+    document.getElementById('togReducedMotion').classList.toggle('on', state.settings.reducedMotion);
+    document.getElementById('togPerfMode').classList.toggle('on', state.settings.perfMode);
+    document.getElementById('togFadeOut').classList.toggle('on', state.settings.fadeOut);
+    document.getElementById('togVibrate').classList.toggle('on', state.settings.vibrate);
+    document.getElementById('selDefaultTimer').value = state.settings.defaultTimer;
+    document.body.classList.toggle('perf-mode', state.settings.perfMode);
+    if (state.settings.reducedMotion) {
+      document.documentElement.style.setProperty('--transition', '0.01ms');
+    }
+  }
+
+  /* ==================================================
+     BACKGROUND STARS / PARTICLES
+  ================================================== */
+  function createBackground() {
+    const stars = document.getElementById('stars');
+    const count = state.settings.perfMode ? 12 : 28;
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 70 + '%';
+      s.style.animationDelay = (Math.random() * 4) + 's';
+      s.style.width = (1 + Math.random() * 2) + 'px';
+      s.style.height = s.style.width;
+      stars.appendChild(s);
+    }
+    if (!state.settings.perfMode) {
+      for (let i = 0; i < 6; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = (30 + Math.random() * 50) + '%';
+        p.style.animationDelay = (Math.random() * 8) + 's';
+        document.getElementById('bgLayer').appendChild(p);
+      }
+    }
+  }
+
+  /* ==================================================
+     EVENT BINDINGS
+  ================================================== */
+  function bindEvents() {
+    // Nav
+    document.getElementById('bottomNav').addEventListener('click', e => {
+      const btn = e.target.closest('.nav-item');
+      if (!btn) return;
+      vibrate();
+      navigate(btn.dataset.page);
+    });
+
+    // Main cards
+    document.querySelectorAll('.main-card').forEach(card => {
+      card.addEventListener('click', () => {
+        vibrate();
+        navigate(card.dataset.nav);
+      });
+    });
+
+    // Settings button
+    document.getElementById('btnSettings').addEventListener('click', () => {
+      vibrate();
+      navigate('settings');
+    });
+
+    // Sound list clicks (delegation)
+    document.getElementById('mainContent').addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      vibrate();
+      if (action === 'play') {
+        const sound = SOUNDS.find(s => s.id === id);
+        if (!sound) return;
+        if (state.currentSound && state.currentSound.id === id && state.isPlaying) {
+          AudioManager.pause();
+        } else {
+          AudioManager.play(sound);
+        }
+      } else if (action === 'fav') {
+        toggleFavorite(id);
+      }
+    });
+
+    // Mini player
+    document.getElementById('miniPlayBtn').addEventListener('click', () => {
+      vibrate();
+      AudioManager.toggle();
+    });
+    document.getElementById('miniExpandBtn').addEventListener('click', () => {
+      vibrate();
+      openSheet('player');
+    });
+    document.getElementById('miniPlayer').addEventListener('click', e => {
+      if (e.target.closest('.mini-btn')) return;
+      openSheet('player');
+    });
+
+    // Player controls
+    document.getElementById('btnPlayPause').addEventListener('click', () => {
+      vibrate();
+      AudioManager.toggle();
+    });
+    document.getElementById('btnNext').addEventListener('click', () => {
+      vibrate();
+      AudioManager.next();
+    });
+    document.getElementById('btnPrev').addEventListener('click', () => {
+      vibrate();
+      AudioManager.prev();
+    });
+    document.getElementById('btnPlayerFav').addEventListener('click', () => {
+      if (!state.currentSound) return;
+      vibrate();
+      toggleFavorite(state.currentSound.id);
+    });
+    document.getElementById('btnTimer').addEventListener('click', () => {
+      vibrate();
+      closeSheet('player');
+      updateTimerSheetInfo();
+      openSheet('timer');
+    });
+    document.getElementById('btnSleepModePlayer').addEventListener('click', () => {
+      vibrate();
+      enterSleepMode();
+    });
+    document.getElementById('btnVolume').addEventListener('click', () => {
+      vibrate();
+      closeSheet('player');
+      const slider = document.getElementById('volumeSlider');
+      const pct = document.getElementById('volumePercent');
+      slider.value = Math.round(state.volume * 100);
+      pct.textContent = toPersianNum(slider.value) + '٪';
+      openSheet('volume');
+    });
+    document.getElementById('volumeSlider').addEventListener('input', function () {
+      const v = parseInt(this.value, 10) / 100;
+      AudioManager.setVolume(v);
+      document.getElementById('volumePercent').textContent = toPersianNum(this.value) + '٪';
+    });
+    document.getElementById('btnCloseVolume').addEventListener('click', () => {
+      vibrate();
+      closeSheet('volume');
+    });
+    document.getElementById('volumeOverlay').addEventListener('click', () => closeSheet('volume'));
+    document.getElementById('playerOverlay').addEventListener('click', () => closeSheet('player'));
+
+    // Progress seek
+    document.getElementById('progressTrack').addEventListener('click', e => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const ratio = 1 - ((e.clientX - rect.left) / rect.width); // RTL
+      AudioManager.seek(Math.max(0, Math.min(1, ratio)));
+    });
+
+    // Timer sheet – based on current sound duration only
+    document.getElementById('btnSetTimer').addEventListener('click', () => {
+      vibrate();
+      if (!state.currentSound) {
+        showToast('اول یک صدا پخش کن');
+        return;
+      }
+      state.fadeOut = document.getElementById('togFadeSheet').classList.contains('on');
+      const remaining = Math.max(1, Math.ceil(state.duration - state.currentTime));
+      AudioManager.startTimer(remaining);
+      closeSheet('timer');
+      enterSleepMode();
+      showToast('تایمر برای ' + formatTime(remaining) + ' فعال شد');
+    });
+    document.getElementById('btnCancelTimer').addEventListener('click', () => {
+      vibrate();
+      AudioManager.clearTimer();
+      closeSheet('timer');
+      showToast('تایمر لغو شد');
+    });
+    document.getElementById('timerOverlay').addEventListener('click', () => closeSheet('timer'));
+    document.getElementById('togFadeSheet').addEventListener('click', function () {
+      this.classList.toggle('on');
+      vibrate();
+    });
+
+    // Messages
+    document.getElementById('btnNextMsg').addEventListener('click', () => {
+      vibrate();
+      state.messageIndex = (state.messageIndex + 1) % MESSAGES.length;
+      renderMessage();
+      persist();
+    });
+    document.getElementById('btnRandomMsg').addEventListener('click', () => {
+      vibrate();
+      let next;
+      do {
+        next = Math.floor(Math.random() * MESSAGES.length);
+      } while (next === state.messageIndex && MESSAGES.length > 1);
+      state.messageIndex = next;
+      renderMessage();
+      persist();
+    });
+    document.getElementById('btnFavMsg').addEventListener('click', () => {
+      vibrate();
+      const msg = MESSAGES[state.messageIndex];
+      const idx = state.favMessages.indexOf(msg);
+      if (idx >= 0) {
+        state.favMessages.splice(idx, 1);
+        showToast('از علاقه مندی ها حذف شد');
+      } else {
+        state.favMessages.push(msg);
+        showToast('به علاقه مندی ها اضافه شد');
+      }
+      renderMessage();
+      persist();
+    });
+
+    // Sleep mode
+    document.getElementById('btnSleepMode').addEventListener('click', () => {
+      vibrate();
+      enterSleepMode();
+    });
+    document.getElementById('btnOpenTimer').addEventListener('click', () => {
+      vibrate();
+      updateTimerSheetInfo();
+      openSheet('timer');
+    });
+    document.getElementById('btnExitSleep').addEventListener('click', () => {
+      vibrate();
+      exitSleepMode();
+    });
+    document.getElementById('sleepPlayBtn').addEventListener('click', () => {
+      vibrate();
+      AudioManager.toggle();
+    });
+
+    // Settings toggles
+    document.getElementById('togReducedMotion').addEventListener('click', function () {
+      this.classList.toggle('on');
+      state.settings.reducedMotion = this.classList.contains('on');
+      persist();
+      vibrate();
+    });
+    document.getElementById('togPerfMode').addEventListener('click', function () {
+      this.classList.toggle('on');
+      state.settings.perfMode = this.classList.contains('on');
+      document.body.classList.toggle('perf-mode', state.settings.perfMode);
+      persist();
+      vibrate();
+    });
+    document.getElementById('togFadeOut').addEventListener('click', function () {
+      this.classList.toggle('on');
+      state.settings.fadeOut = this.classList.contains('on');
+      persist();
+      vibrate();
+    });
+    document.getElementById('togVibrate').addEventListener('click', function () {
+      this.classList.toggle('on');
+      state.settings.vibrate = this.classList.contains('on');
+      persist();
+      if (state.settings.vibrate) vibrate();
+    });
+    document.getElementById('selDefaultTimer').addEventListener('change', function () {
+      state.settings.defaultTimer = parseInt(this.value, 10);
+      persist();
+    });
+    document.getElementById('btnClearData').addEventListener('click', () => {
+      if (confirm('همه اطلاعات ذخیره شده پاک بشه؟')) {
+        localStorage.removeItem('khabAram');
+        state.favorites = [];
+        state.favMessages = [];
+        state.settings = { reducedMotion: false, perfMode: false, defaultTimer: 10, fadeOut: true, vibrate: false };
+        showToast('اطلاعات پاک شد');
+        applySettingsUI();
+        renderFavorites();
+      }
+    });
+
+  }
+
+  function toggleFavorite(id) {
+    const idx = state.favorites.indexOf(id);
+    if (idx >= 0) {
+      state.favorites.splice(idx, 1);
+      showToast('از علاقه مندی ها حذف شد');
+    } else {
+      state.favorites.push(id);
+      showToast('به علاقه مندی ها اضافه شد');
+    }
+    persist();
+    updateUI();
+  }
+
+  function enterSleepMode() {
+    closeSheet('player');
+    closeSheet('timer');
+    closeSheet('volume');
+    document.getElementById('sleepMode').classList.add('active');
+  }
+  function exitSleepMode() {
+    document.getElementById('sleepMode').classList.remove('active');
+  }
+
+  /* ==================================================
+     INIT
+  ================================================== */
+  function init() {
+    loadPersisted();
+    AudioManager.init();
+    createBackground();
+    bindEvents();
+    applySettingsUI();
+
+    // initial renders
+    renderSoundList('lullabyList', 'lullaby');
+    renderSoundList('ambientList', 'ambient');
+    renderMessage();
+    updateUI();
+
+    // hide loading
+    setTimeout(() => {
+      document.getElementById('loadingScreen').classList.add('fade-out');
+      setTimeout(() => {
+        document.getElementById('loadingScreen').style.display = 'none';
+      }, 700);
+    }, 1200);
+  }
+
+  // Start
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
